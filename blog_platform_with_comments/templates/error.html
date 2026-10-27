@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }} · Ideonix{% endblock %}
+{% block content %}
+<div class="empty-state"><div class="empty-icon">!</div><h1>Error {{ code }}</h1><p>{{ message }}</p><a class="button" href="{{ url_for('index') }}">Return home</a></div>
+{% endblock %}

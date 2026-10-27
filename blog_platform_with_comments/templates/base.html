@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#14263f">
+  <meta name="description" content="Ideonix is an AI-powered knowledge-sharing and blogging platform. Ideas That Move the World.">
+  <title>{% block title %}Ideonix · Ideas That Move the World{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="site-header"><div class="nav-wrap">
+  <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark" aria-hidden="true">I</span><span class="brand-copy"><strong>IDEONIX</strong><small>Ideas That Move the World.</small></span></a>
+  <nav aria-label="Main navigation">
+    <a href="{{ url_for('index') }}" data-i18n="home">Home</a>
+    {% if session.get('user_id') %}
+      <a href="{{ url_for('new_post') }}" data-i18n="write">Write a post</a>
+      <a href="{{ url_for('my_bookmarks') }}" data-i18n="saved">Saved posts</a>
+      <span class="welcome">Hi, {{ session.get('username') }}</span>
+      <form class="inline-form" method="post" action="{{ url_for('logout') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="nav-button" type="submit" data-i18n="logout">Log out</button></form>
+    {% else %}<a href="{{ url_for('login') }}" data-i18n="login">Log in</a><a class="nav-cta" href="{{ url_for('register') }}" data-i18n="signup">Sign up</a>{% endif %}
+    <button class="language-switch" type="button" id="languageSwitch" aria-label="Switch interface language">ಕನ್ನಡ</button>
+  </nav>
+</div></header>
+<main class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-list">{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="site-footer"><strong>IDEONIX</strong><span data-i18n="footer">An AI-powered knowledge-sharing and blogging platform.</span><small>Ideas That Move the World.</small></footer>
+<script>
+const uiText={en:{home:'Home',write:'Write a post',saved:'Saved posts',logout:'Log out',login:'Log in',signup:'Sign up',footer:'An AI-powered knowledge-sharing and blogging platform.'},kn:{home:'ಮುಖಪುಟ',write:'ಬ್ಲಾಗ್ ಬರೆಯಿರಿ',saved:'ಉಳಿಸಿದ ಬರಹಗಳು',logout:'ಲಾಗ್ ಔಟ್',login:'ಲಾಗಿನ್',signup:'ನೋಂದಣಿ',footer:'AI ಆಧಾರಿತ ಜ್ಞಾನ ಹಂಚಿಕೆ ಮತ್ತು ಬ್ಲಾಗಿಂಗ್ ವೇದಿಕೆ.'}};
+const switcher=document.getElementById('languageSwitch');let uiLang=localStorage.getItem('ideonix-ui-lang')||'en';
+function applyUiLanguage(){document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.dataset.i18n;if(uiText[uiLang][key])el.textContent=uiText[uiLang][key]});switcher.textContent=uiLang==='en'?'ಕನ್ನಡ':'English';document.documentElement.lang=uiLang==='kn'?'kn':'en'}
+switcher.addEventListener('click',()=>{uiLang=uiLang==='en'?'kn':'en';localStorage.setItem('ideonix-ui-lang',uiLang);applyUiLanguage()});applyUiLanguage();
+</script>
+{% block scripts %}{% endblock %}
+</body></html>

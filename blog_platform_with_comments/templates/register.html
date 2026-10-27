@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Sign up · Ideonix{% endblock %}
+{% block content %}
+<div class="form-page"><div class="form-card">
+  <p class="eyebrow">JOIN THE COMMUNITY</p><h1>Create account</h1><p class="muted">Your next great idea starts here.</p>
+  <form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label for="username">Username</label><input id="username" name="username" required minlength="3" maxlength="30" autocomplete="username" placeholder="At least 3 characters">
+    <label for="password">Password</label><input id="password" type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters">
+    <button class="button full-width" type="submit">Create account</button>
+  </form>
+  <p class="form-bottom">Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+</div></div>
+{% endblock %}
