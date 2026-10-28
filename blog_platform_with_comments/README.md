@@ -5,7 +5,7 @@ An AI-powered, English and Kannada knowledge-sharing and blogging platform built
 ## Features
 - User registration, login/logout, secure password hashing and CSRF checks
 - Create, edit and delete your own blog posts
-- Categories, tags, search and English/Kannada/Both language labels
+- Categories for technology, science, education, careers, business, wellness, arts, travel, sports and more; tags, search and English/Kannada/Both language labels
 - Comments and one-level threaded replies
 - Like/unlike posts and bookmark/unbookmark posts
 - Saved-post reading list

@@ -19,6 +19,28 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "blog.db")
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "static", "uploads")
 MAX_IMAGE_SIZE = 5 * 1024 * 1024
 IMAGE_FORMATS = {".jpg": "JPEG", ".jpeg": "JPEG", ".png": "PNG", ".webp": "WEBP"}
+CATEGORIES = (
+    "General",
+    "Technology",
+    "AI & Data",
+    "Science & Research",
+    "Education",
+    "Career",
+    "Business & Startups",
+    "Finance",
+    "Environment",
+    "Health & Wellness",
+    "Lifestyle",
+    "Personal Development",
+    "Arts & Culture",
+    "Books & Literature",
+    "Food & Cooking",
+    "Travel",
+    "Sports",
+    "History",
+    "News & Society",
+    "Kannada Stories",
+)
 
 
 @contextmanager
@@ -37,6 +59,13 @@ def add_column_if_missing(db, table, column, definition):
     names = [row[1] for row in db.execute(f"PRAGMA table_info({table})").fetchall()]
     if column not in names:
         db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+
+
+def available_categories(db):
+    existing = [row[0] for row in db.execute(
+        "SELECT DISTINCT category FROM posts WHERE category IS NOT NULL ORDER BY category"
+    ).fetchall()]
+    return list(dict.fromkeys((*CATEGORIES, *existing)))
 
 
 def init_db():
@@ -194,7 +223,7 @@ def index():
     sql += " ORDER BY p.id DESC"
     with get_db() as db:
         posts = db.execute(sql, args).fetchall()
-        categories = [r[0] for r in db.execute("SELECT DISTINCT category FROM posts ORDER BY category").fetchall()]
+        categories = available_categories(db)
         bookmarked_ids = set()
         liked_ids = set()
         if session.get("user_id"):
@@ -276,6 +305,8 @@ def logout():
 @app.route("/post/new", methods=["GET", "POST"])
 @login_required
 def new_post():
+    with get_db() as db:
+        categories = available_categories(db)
     if request.method == "POST":
         title, content, category, tags, language = post_fields()
         image_data, image_extension, image_error = read_featured_image(request.files.get("featured_image"))
@@ -296,8 +327,8 @@ def new_post():
                            (session["user_id"], title, content, category, tags, language, image_path))
             flash("Your blog post was published.", "success")
             return redirect(url_for("index"))
-        return render_template("post_form.html", post=form_post, heading="Write a post")
-    return render_template("post_form.html", post=None, heading="Write a post")
+        return render_template("post_form.html", post=form_post, heading="Write a post", categories=categories)
+    return render_template("post_form.html", post=None, heading="Write a post", categories=categories)
 
 
 @app.route("/post/<int:post_id>")
@@ -323,6 +354,7 @@ def post_detail(post_id):
 @login_required
 def edit_post(post_id):
     with get_db() as db:
+        categories = available_categories(db)
         post = db.execute("SELECT * FROM posts WHERE id=?", (post_id,)).fetchone()
         if post is None: abort(404)
         if post["user_id"] != session["user_id"]: abort(403)
@@ -352,8 +384,8 @@ def edit_post(post_id):
                     remove_featured_image(previous_image)
                 flash("Post updated.", "success")
                 return redirect(url_for("post_detail", post_id=post_id))
-            return render_template("post_form.html", post=form_post, heading="Edit your post")
-    return render_template("post_form.html", post=post, heading="Edit your post")
+            return render_template("post_form.html", post=form_post, heading="Edit your post", categories=categories)
+    return render_template("post_form.html", post=post, heading="Edit your post", categories=categories)
 
 
 @app.route("/post/<int:post_id>/delete", methods=["POST"])
@@ -447,6 +479,13 @@ def not_found(error):
 def request_too_large(error):
     return render_template("error.html", code=413,
                            message="The upload is too large. Featured images must be 5 MB or smaller."), 413
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template("error.html", code=500,
+                           message="Something went wrong on our end. Please try again later."), 500
+
 
 init_db()
 

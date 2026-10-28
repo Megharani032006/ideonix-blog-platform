@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Error {{ code }} · Ideonix{% endblock %}
+{% block title %}{% if code == 500 %}Server error{% else %}Error {{ code }}{% endif %} · Ideonix{% endblock %}
 {% block content %}
-<div class="empty-state"><div class="empty-icon">!</div><h1>Error {{ code }}</h1><p>{{ message }}</p><a class="button" href="{{ url_for('index') }}">Return home</a></div>
+<section class="empty-state" aria-labelledby="error-title"><div class="empty-icon" aria-hidden="true">!</div><h1 id="error-title">{% if code == 500 %}Something went wrong{% else %}Error {{ code }}{% endif %}</h1><p role="alert">{{ message }}</p><a class="button" href="{{ url_for('index') }}">Return home</a></section>
 {% endblock %}
